@@ -1,87 +1,48 @@
-import { supabase } from "../supabase/supabase-client";
 import { useState } from "react";
+import { Link } from "react-router-dom";
+import { supabase } from "../backend/client-supabase";
 
 export function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [user, setUser] = useState<any>(null);
+  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const handleLogin = async () => {
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
     setLoading(true);
     const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password,
     });
-    setLoading(false);
-    if (error) alert(error.message);
-    else setUser(data.user);
-  }
-
-  const handleSignUp = async () => {
-    setLoading(true);
-    const { data, error } = await supabase.auth.signUp({
-      email,
-      password,
-    });
-    setLoading(false);
-    if (error) alert(error.message);
-    else alert("Registro exitoso, revisa tu correo para confirmar la cuenta");
     console.log(data);
-  }
-
-  const handleGoogleLogin = async () => {
-    setLoading(true);
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: 'google',
-      options: {
-        redirectTo: window.location.origin,
-      },
-    });
+    
+    error ? setError(error.message) : setError("");
     setLoading(false);
-    if (error) console.error("Error al iniciar sesión con Google:", error);
-  }
-
-  const handleLogout = async () => {
-    await supabase.auth.signOut();
-    setUser(null);
-  }
+  };
 
   return (
-    <div style={{ padding: "2rem", fontFamily: "sans-serif" }}>
-      {!user ? (
-        <>
-          <h2>🔐 Login con Supabase</h2>
-          <input
-            type="email"
-            placeholder="Correo"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-          />
-          <br />
-          <input
-            type="password"
-            placeholder="Contraseña"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
-          <br />
-          <button onClick={handleLogin} disabled={loading}>
-            Iniciar sesión
-          </button>
-          <button onClick={handleSignUp} disabled={loading}>
-            Registrarse
-          </button>
-          <button onClick={handleGoogleLogin} disabled={loading}>
-            Google
-          </button>
-        </>
-      ) : (
-        <>
-          <h2>Bienvenido {user.email}</h2>
-          <button onClick={handleLogout}>Cerrar sesión</button>
-        </>
-      )}
+  <div className="flex flex-col items-center justify-center h-screen">
+    <form onSubmit={handleLogin} className="flex flex-col gap-4">
+      <input 
+        type="email" 
+        placeholder="Email" 
+        value={email} 
+        onChange={(e) => setEmail(e.target.value)} 
+        className="border border-gray-300 rounded-md p-2"
+      />
+      <input 
+        type="password" 
+        placeholder="Password" 
+        value={password} 
+        onChange={(e) => setPassword(e.target.value)} 
+        className="border border-gray-300 rounded-md p-2"
+      />
+      <button type="submit" disabled={loading} className="bg-blue-500 text-white p-2 rounded-md">Login</button>
+      <span className="text-sm">Don't have an account? <Link to="/register" className="text-blue-500">Register</Link></span>
+        {error && <p className="text-red-500">{error}</p>}
+        {loading && <p className="text-blue-500">Loading...</p>}
+      </form>
     </div>
-  );
+  )
 }

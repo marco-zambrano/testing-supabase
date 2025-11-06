@@ -1,26 +1,16 @@
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { Login } from "./pages/Login";
-import { supabase } from "./supabase/supabase-client";
+import { Register } from "./pages/Register";
 
 function App() {
-
-
-
-  const example = async () => {
-    let { data: profiles, error } = await supabase
-      .from('profiles')
-      .select('*')
-    console.log(profiles, error);
-  };
-  
-  example();
-
-
-
-
   return (
-    <>
-      <Login></Login>
-    </>
+    <BrowserRouter>
+      <Routes>
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+        <Route path="/" element={<Navigate to="/login" replace />} />
+      </Routes>
+    </BrowserRouter>
   );
 }
 
